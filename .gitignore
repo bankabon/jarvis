@@ -1,0 +1,14 @@
+.env
+data/
+bridge/*.log
+bridge/*.pid
+node_modules/
+frontend/dist/
+__pycache__/
+.env.*
+!.env.example
+*.bak
+.DS_Store
+HANDOFF_*.md
+venv/
+.venv/

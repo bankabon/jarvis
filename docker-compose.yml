@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      BRIDGE_URL: http://host.docker.internal:${BRIDGE_PORT:-8765}
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN:?run ./start.sh to generate .env}
+      DB_PATH: /data/jarvis.db
+      WHISPER_MODEL_DIR: /models/whisper
+      WHISPER_LANGUAGE: ja
+    volumes:
+      - ./data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # Linux でも host.docker.internal を使えるように
+
+  # VOICEVOX エンジン(読み上げ)。.env の COMPOSE_PROFILES=voicevox で起動。不要なら空にする
+  voicevox:
+    image: voicevox/voicevox_engine:cpu-latest
+    profiles: [voicevox]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:50021:50021"                # ブラウザ等から直接確認したい場合用(PC内のみ)
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on: [backend]
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3210}:80"       # 自分のPCからのみアクセス可
